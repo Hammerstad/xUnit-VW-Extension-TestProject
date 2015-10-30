@@ -1,0 +1,21 @@
+version: 0.1.{build}
+os: Windows Server 2012 R2
+configuration: Release
+before_build:
+  - nuget restore ".\xUnit-VW-Extensions-TestProject.sln"
+build:
+  project: .\xUnit-VW-Extensions-TestProject.sln
+  verbosity: normal
+test_script:
+- ps: >-
+    $testFiles = @(
+        "xUnit-VW-Extensions-TestProject/bin/Release/xUnit-VW-Extensions-TestProject.dll"
+    )
+
+    $xUnitAdapterPath = ".\packages\xunit.runner.visualstudio.2.1.0\build\_common"
+
+    $VsTestExecutable = "${Env:ProgramFiles(x86)}\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
+
+    Remove-Item -Force -Recurse .\TestResults -ErrorAction SilentlyContinue
+
+    & $VsTestExecutable /inIsolation /TestAdapterPath:"$xUnitAdapterPath" $testFiles
